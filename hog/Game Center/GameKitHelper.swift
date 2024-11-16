@@ -64,12 +64,13 @@ class GameKitHelper : NSObject {
                 // Disable communication UI
             }
             
+            // TODO: Comment these back out if necessary
             // Player the access point in the upper-right hand corner
-            // GKAccessPoint.shared.location = .topLeading
-            // GKAccessPoint.shared.showHightlights = true
-            // GKAccessPoint.shared.isActive = true
+            GKAccessPoint.shared.location = .topLeading
+            GKAccessPoint.shared.showHighlights = true
+            GKAccessPoint.shared.isActive = true
             
-            // Perform other configuations as needed here
+            // Perform other configuations as needed here //
         }
     }
 }
