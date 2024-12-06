@@ -25,9 +25,8 @@ class GameKitHelper : NSObject {
     
     // Game Center and GameKit-related view controllers
     var authenticationViewController: UIViewController?
-    
-    // Variable for button interaction with GameCenter
     var gameCenterViewController: GKGameCenterViewController?
+    var matchmakerViewController: GKTurnBasedMatchmakerViewController?
     
     
     // MARK: - GAME CENTER METHODS
@@ -122,6 +121,7 @@ class GameKitHelper : NSObject {
 // MARK: - DELEGATE EXTENSIONS
 
 extension GameKitHelper: GKGameCenterControllerDelegate {
+    
     /// Dismisses Game Center View Controller - this is required.
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
         gameCenterViewController.dismiss(animated: true, completion: nil)
@@ -151,13 +151,41 @@ extension GameKitHelper: GKGameCenterControllerDelegate {
 }
 
 
+// MARK: - TURN BASED MULTIPLAYER EXTENSIONS
+
+extension GameKitHelper: GKTurnBasedMatchmakerViewControllerDelegate {
+    
+    /// Closes view controller when cancelled - required by protocol.
+    ///
+    /// - Parameters:
+    ///   - viewController: View controller to close.
+    func turnBasedMatchmakerViewControllerWasCancelled(_ viewController: GKTurnBasedMatchmakerViewController) {
+        viewController.dismiss(animated: true, completion: nil)
+    }
+    
+    /// Error handling - required by protocol.
+    ///
+    /// - Parameters:
+    ///   - viewController: View Controller for error handling.
+    ///   - error: Error produced from failure.
+    func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController,
+                                           didFailWithError error: Error) {
+        print("MatchmakerViewController failed with error: \(error)")
+    }
+}
+
+
 // MARK: - NOTIFICATION EXTENSION
 
 // Authentication notification
 extension Notification.Name {
+    
     static let presentAuthenticationViewController =
         Notification.Name("presentAuthenticationViewController")
     
     static let presentGameCenterViewController =
         Notification.Name("presentGameCenterViewController")
+    
+    static let presentTurnBasedGameCenterViewController =
+        Notification.Name("presentTurnBasedGameCenterViewController")
 }
