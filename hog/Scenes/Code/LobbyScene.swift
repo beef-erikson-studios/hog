@@ -68,7 +68,8 @@ class LobbyScene: SKScene {
         } else if playLocalButton.contains(nodeAtPoint) {
             loadGameScene(gameType: GameType.localMatch)
         } else if findMatchButton.contains(nodeAtPoint) {
-            // TODO: Add code to open find match
+            // Opens matchmaking
+            GameKitHelper.shared.findMatch()
         } else if gameCenterButton.contains(nodeAtPoint) {
             // Shows the Game Center
             GameKitHelper.shared.showGKGameCenter(state: .dashboard)

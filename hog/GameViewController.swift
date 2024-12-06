@@ -16,17 +16,27 @@ class GameViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        // GameCenter observers
+  
+        
+        // MARK: -  GAME CENTER OBSERVERS
+        
+        // Authentication
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(self.showAuthenticationViewController),
             name: .presentAuthenticationViewController, object: nil)
         
+        // Game Center
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(self.showGameCenterViewController),
             name: .presentGameCenterViewController, object: nil)
+        
+        // Matchmaker
+        NotificationCenter.default.addObserver(
+            self,
+            selector:  #selector(self.showTurnBasedMatchmakerViewController),
+            name: .presentTurnBasedGameCenterViewController, object: nil)
     
         // Authenticate the Local GC player
         GameKitHelper.shared.authenticateLocalPlayer()
@@ -70,7 +80,7 @@ class GameViewController: UIViewController {
 
     // MARK: - GAME CENTER NOTIFICATION HANDLERS
   
-    /// Presents the shared view controller object.
+    /// Presents the shared view controller.
     @objc func showAuthenticationViewController() {
         if let viewController = GameKitHelper.shared.authenticationViewController {
             present(viewController, animated: true, completion: nil)
@@ -80,6 +90,13 @@ class GameViewController: UIViewController {
     /// Presents the game center view controller.
     @objc func showGameCenterViewController() {
         if let viewController = GameKitHelper.shared.gameCenterViewController {
+            present(viewController, animated: true, completion: nil)
+        }
+    }
+    
+    /// Presents the matchmaking view controller.
+    @objc func showTurnBasedMatchmakerViewController() {
+        if let viewController = GameKitHelper.shared.matchmakerViewController {
             present(viewController, animated: true, completion: nil)
         }
     }
