@@ -23,6 +23,7 @@
 		042BFD4B254D88A6001D82EF /* GameOverScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 042BFD4A254D88A6001D82EF /* GameOverScene.sks */; };
 		04358A75254EEC4200244B70 /* PlayerStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04358A74254EEC4200244B70 /* PlayerStates.swift */; };
 		04799959255053B400D6D78D /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04799958255053B400D6D78D /* GameData.swift */; };
+		C4461F512D0362D500694133 /* AchievementsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4461F502D0362D500694133 /* AchievementsHelper.swift */; };
 		C4DF3BF22CE8DF0C00F045E6 /* GameKitHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DF3BF12CE8DF0C00F045E6 /* GameKitHelper.swift */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		04358A74254EEC4200244B70 /* PlayerStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerStates.swift; sourceTree = "<group>"; };
 		0479994E254F230C00D6D78D /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		04799958255053B400D6D78D /* GameData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
+		C4461F502D0362D500694133 /* AchievementsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsHelper.swift; sourceTree = "<group>"; };
 		C4DF3BEF2CE7A9EA00F045E6 /* hog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = hog.entitlements; sourceTree = "<group>"; };
 		C4DF3BF12CE8DF0C00F045E6 /* GameKitHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameKitHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -156,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				C4DF3BF12CE8DF0C00F045E6 /* GameKitHelper.swift */,
+				C4461F502D0362D500694133 /* AchievementsHelper.swift */,
 			);
 			path = "Game Center";
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				042BFD0E254C729D001D82EF /* SKTexture+LoadTextures.swift in Sources */,
+				C4461F512D0362D500694133 /* AchievementsHelper.swift in Sources */,
 				042BFCF02549DA9E001D82EF /* GameScene.swift in Sources */,
 				04358A75254EEC4200244B70 /* PlayerStates.swift in Sources */,
 				04799959255053B400D6D78D /* GameData.swift in Sources */,

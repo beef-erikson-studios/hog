@@ -11,6 +11,7 @@
 
 
 import SpriteKit
+import GameKit
 
 class GameOverScene: SKScene {
     
@@ -59,6 +60,12 @@ class GameOverScene: SKScene {
     
         // Reports score
         GameKitHelper.shared.reportScore(score: GameData.shared.wins, forLeaderboardID: GameKitHelper.leaderBoardIDMostWins)
+        
+        // Reports achievements
+        var achievements: [GKAchievement] = []
+        achievements.append(AchievementsHelper.firstWinAchievement(didWin: isWinner))
+        GameKitHelper.shared.reportAchievements(achievements: achievements)
+        
     }
     
   

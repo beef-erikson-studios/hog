@@ -104,6 +104,18 @@ class GameKitHelper : NSObject {
             GKScore.report([gkScore], withCompletionHandler: errorHandler)
        }
     }
+    
+    /// Reports the player's Achievements.
+    ///
+    /// - Parameters:
+    ///   - achievements: Array of achievements to report.
+    ///   - errorHandler: Error handler.
+    func reportAchievements(achievements: [GKAchievement],
+                            errorHandler: ((Error?)->Void)? = nil) {
+        guard GKLocalPlayer.local.isAuthenticated else { return }
+        
+        GKAchievement.report(achievements, withCompletionHandler: errorHandler)
+    }
 }
 
 
