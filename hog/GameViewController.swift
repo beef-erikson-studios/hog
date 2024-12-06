@@ -3,14 +3,17 @@
 //  hog
 //
 //  Created by Tammy Coron on 10/31/2020.
+//  Further code edits created by Troy Martin on 12/06/24.
+//
 //  Copyright © 2020 Just Write Code LLC. All rights reserved.
+//  Copyright © 2024 Beef Erikson Studios. All rights reserved.
 //
 
-import UIKit
-import SpriteKit
+import GameKit
+
 
 class GameViewController: UIViewController {
-  
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     
@@ -19,6 +22,11 @@ class GameViewController: UIViewController {
             self,
             selector: #selector(self.showAuthenticationViewController),
             name: .presentAuthenticationViewController, object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.showGameCenterViewController),
+            name: .presentGameCenterViewController, object: nil)
     
         // Authenticate the Local GC player
         GameKitHelper.shared.authenticateLocalPlayer()
@@ -58,12 +66,20 @@ class GameViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
-  
+
+
     // MARK: - GAME CENTER NOTIFICATION HANDLERS
   
     /// Presents the shared view controller object.
     @objc func showAuthenticationViewController() {
         if let viewController = GameKitHelper.shared.authenticationViewController {
+            present(viewController, animated: true, completion: nil)
+        }
+    }
+    
+    /// Presents the game center view controller.
+    @objc func showGameCenterViewController() {
+        if let viewController = GameKitHelper.shared.gameCenterViewController {
             present(viewController, animated: true, completion: nil)
         }
     }

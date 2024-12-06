@@ -3,70 +3,75 @@
 //  hog
 //
 //  Created by Tammy Coron on 10/31/2020.
+//  Further edits created by Troy Martin on 12/06/24.
+//
 //  Copyright © 2020 Just Write Code LLC. All rights reserved.
+//  Copyright © 2024 Beef Erikson Studios. All rights reserved.
 //
 
 import SpriteKit
 
 class LobbyScene: SKScene {
   
-  // MARK: - PROPERTIES
+    // MARK: - PROPERTIES
   
-  private lazy var playSoloButton: SKSpriteNode = {
-    childNode(withName: "button_playSolo") as! SKSpriteNode
-  }()
+    private lazy var playSoloButton: SKSpriteNode = {
+        childNode(withName: "button_playSolo") as! SKSpriteNode
+    }()
   
-  private lazy var playLocalButton: SKSpriteNode = {
-    childNode(withName: "button_playLocal") as! SKSpriteNode
-  }()
+    private lazy var playLocalButton: SKSpriteNode = {
+        childNode(withName: "button_playLocal") as! SKSpriteNode
+    }()
   
-  private lazy var findMatchButton: SKSpriteNode = {
-    childNode(withName: "button_findMatch") as! SKSpriteNode
-  }()
+    private lazy var findMatchButton: SKSpriteNode = {
+        childNode(withName: "button_findMatch") as! SKSpriteNode
+    }()
   
-  private lazy var gameCenterButton: SKSpriteNode = {
-    childNode(withName: "button_gameCenter") as! SKSpriteNode
-  }()
+    private lazy var gameCenterButton: SKSpriteNode = {
+        childNode(withName: "button_gameCenter") as! SKSpriteNode
+    }()
   
-  // ** TEST CODE (For Simulator Only) **
-  // This code lets you easily test win/lose scene
-  // without having to play the game
-  #if targetEnvironment(simulator)
-  private var isTest: Bool = true
+    // ** TEST CODE (For Simulator Only) **
+    // This code lets you easily test win/lose scene
+    // without having to play the game
+    #if targetEnvironment(simulator)
+    private var isTest: Bool = true
   
-  private lazy var chipsButton: SKSpriteNode = {
-    childNode(withName: "chips") as! SKSpriteNode
-  }()
-  private lazy var diceButton: SKSpriteNode = {
-    childNode(withName: "dice") as! SKSpriteNode
-  }()
-  #endif
+    private lazy var chipsButton: SKSpriteNode = {
+        childNode(withName: "chips") as! SKSpriteNode
+    }()
+    private lazy var diceButton: SKSpriteNode = {
+        childNode(withName: "dice") as! SKSpriteNode
+    }()
+    #endif
   
-  // MARK: - INIT METHODS
-  
-  override func didMove(to view: SKView) {
     
-    // TODO: Add code to reset the match data
-    // TODO: Add Game Center Observers
+    // MARK: - INIT METHODS
+  
+    override func didMove(to view: SKView) {
+        // TODO: Add code to reset the match data
+        // TODO: Add Game Center Observers
   }
   
-  // MARK: - TOUCH HANDLERS
-  
-  /* ############################################################ */
-  /*                 TOUCH HANDLERS STARTS HERE                   */
-  /* ############################################################ */
-  
-  func touchDown(atPoint pos : CGPoint) {
-    let nodeAtPoint = atPoint(pos)
     
-    if playSoloButton.contains(nodeAtPoint) {
-      loadGameScene(gameType: GameType.soloMatch)
-    } else if playLocalButton.contains(nodeAtPoint) {
-      loadGameScene(gameType: GameType.localMatch)
-    } else if findMatchButton.contains(nodeAtPoint) {
-      // TODO: Add code to open find match
-    } else if gameCenterButton.contains(nodeAtPoint) {
-      // TODO: Add code to open Game Center
+    // MARK: - TOUCH HANDLERS
+  
+    /* ############################################################ */
+    /*                 TOUCH HANDLERS STARTS HERE                   */
+    /* ############################################################ */
+  
+    func touchDown(atPoint pos : CGPoint) {
+        let nodeAtPoint = atPoint(pos)
+    
+        if playSoloButton.contains(nodeAtPoint) {
+            loadGameScene(gameType: GameType.soloMatch)
+        } else if playLocalButton.contains(nodeAtPoint) {
+            loadGameScene(gameType: GameType.localMatch)
+        } else if findMatchButton.contains(nodeAtPoint) {
+            // TODO: Add code to open find match
+        } else if gameCenterButton.contains(nodeAtPoint) {
+            // Shows the Game Center
+            GameKitHelper.shared.showGKGameCenter(state: .dashboard)
     }
     
     // ** TEST CODE (For Simulator Only) **
