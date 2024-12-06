@@ -80,6 +80,9 @@ class GameKitHelper : NSObject {
         }
     }
     
+    
+    // MARK: - GAME CENTER REPORTING
+    
     /// Reports score to the Game Center Leaderboard for Most Wins.
     ///
     /// - Parameters:
@@ -151,7 +154,7 @@ extension GameKitHelper: GKGameCenterControllerDelegate {
 }
 
 
-// MARK: - TURN BASED MULTIPLAYER EXTENSIONS
+// MARK: - TURN BASED MULTIPLAYER
 
 extension GameKitHelper: GKTurnBasedMatchmakerViewControllerDelegate {
     
@@ -171,6 +174,27 @@ extension GameKitHelper: GKTurnBasedMatchmakerViewControllerDelegate {
     func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController,
                                            didFailWithError error: Error) {
         print("MatchmakerViewController failed with error: \(error)")
+    }
+    
+    /// Shows the matchmaking View Controller.
+    func findMatch() {
+        guard GKLocalPlayer.local.isAuthenticated else { return }
+        
+        // Multiplayer settings
+        let request = GKMatchRequest()
+        request.minPlayers = 2
+        request.maxPlayers = 2
+        request.defaultNumberOfPlayers = 2
+        
+        request.inviteMessage = "Invite your friends to play dice!"
+        
+        // Sets up view controller
+        matchmakerViewController = nil
+        
+        matchmakerViewController = GKTurnBasedMatchmakerViewController(matchRequest: request)
+        matchmakerViewController?.turnBasedMatchmakerDelegate = self
+        
+        NotificationCenter.default.post(name: .presentTurnBasedGameCenterViewController, object: nil)
     }
 }
 
