@@ -28,6 +28,9 @@ class GameKitHelper : NSObject {
     var gameCenterViewController: GKGameCenterViewController?
     var matchmakerViewController: GKTurnBasedMatchmakerViewController?
     
+    // Multiplayer match properties
+    var currentMatch: GKTurnBasedMatch?
+    
     
     // MARK: - GAME CENTER METHODS
     
@@ -47,7 +50,10 @@ class GameKitHelper : NSObject {
                     object: self)
                 return
             }
-            
+            // Register the local player if authenticated
+            else if GKLocalPlayer.local.isAuthenticated {
+                GKLocalPlayer.local.register(self)
+            }
             // Player couldn't be authenticated, disable game center
             if error != nil {
                 return
@@ -154,7 +160,7 @@ extension GameKitHelper: GKGameCenterControllerDelegate {
 }
 
 
-// MARK: - TURN BASED MULTIPLAYER
+// MARK: - TURN BASED MULTIPLAYER EXTENSIONS
 
 extension GameKitHelper: GKTurnBasedMatchmakerViewControllerDelegate {
     
@@ -198,18 +204,108 @@ extension GameKitHelper: GKTurnBasedMatchmakerViewControllerDelegate {
     }
 }
 
+extension GameKitHelper: GKLocalPlayerListener {
+    
+    /// Replaces default view controller with a custom one.
+    ///
+    /// - Parameters:
+    ///   - player: GKPlayer object of the player to post.
+    ///   - match: GKTurnBasedMatch object to post.
+    ///   - didBecomeActive: Bool of wheter object is active.
+    func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
+        
+        matchmakerViewController?.dismiss(animated: true, completion: nil)
+        NotificationCenter.default.post(name: .receivedTurnEvent, object: match)
+    }
+    
+    /// Check if player can take turn.
+    func canTakeTurn() -> Bool {
+        guard let match = currentMatch else { return false }
+        return match.currentParticipant?.player == GKLocalPlayer.local
+    }
+    
+    /// Ends the players turn and sends data.
+    ///
+    /// - Parameters:
+    ///   - gameCenterDataModel: The data to send to the opponent.
+    ///   - errorHandler: Used for error handling / reporting.
+    func endTurn(_ gameCenterDataModel: GameCenterData,
+                 errorHandler: ((Error?)->Void)? = nil) {
+        guard let match = currentMatch else { return }
+        
+        do {
+            match.message = nil
+            match.endTurn(withNextParticipants: match.opponents,
+                          turnTimeout: GKExchangeTimeoutDefault,
+                          match: try JSONEncoder().encode(gameCenterDataModel))
+            print("Game Center Data has been sent.")
+        } catch {
+            print("There was an error sending the data: \(error)")
+        }
+    }
+    
+    /// The player has won the game, send loss to opponents and end the game.
+    ///
+    /// - Parameters:
+    ///   - gameCenterDataModel: The data to send to the server.
+    ///   - errorHandler: Used for error handling / reporting.
+    func winGame(_ gameCenterDataModel: GameCenterData,
+                 errorHandler: ((Error?)->Void)? = nil) {
+        guard let match = currentMatch else { return }
+        
+        // Current player won
+        match.currentParticipant?.matchOutcome = .won
+        
+        // Set all opponents (only 1 in this game) to lost state
+        match.opponents.forEach {  participant in
+            participant.matchOutcome = .lost
+        }
+        
+        // End the match
+        match.endMatchInTurn(withMatch: match.matchData ?? Data(),
+                             completionHandler: {error in })
+    }
+    
+    /// Player lost the game, set win and loss states and end match.
+    ///
+    /// - Parameters:
+    ///   - gameCenterDataModel: The data to send to the server/opponents.
+    ///   - errorHandler: Used for error handling/reporting.
+    func lostGame(_ gameCenterDataModel: GameCenterData,
+                  errorHandler: ((Error?)->Void)? = nil) {
+        guard let match = currentMatch else { return }
+        
+        // Current player lost
+        match.currentParticipant?.matchOutcome = .lost
+        
+        // Set all opponents (only 1 in this game) to win state
+        match.opponents.forEach { participant in
+            participant.matchOutcome = .won
+        }
+        
+        // End the match
+        match.endMatchInTurn(withMatch: match.matchData ?? Data(),
+                             completionHandler: {error in })
+    }
+}
+
 
 // MARK: - NOTIFICATION EXTENSION
 
-// Authentication notification
 extension Notification.Name {
     
+    // Authentication view controller
     static let presentAuthenticationViewController =
         Notification.Name("presentAuthenticationViewController")
     
+    // Game Center view controller
     static let presentGameCenterViewController =
         Notification.Name("presentGameCenterViewController")
     
+    // Multiplayer view controller
     static let presentTurnBasedGameCenterViewController =
         Notification.Name("presentTurnBasedGameCenterViewController")
+    
+    // Received Turn event
+    static let receivedTurnEvent = Notification.Name("receivedTurnEvent")
 }
