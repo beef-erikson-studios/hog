@@ -5,9 +5,13 @@
 //  Created by Tammy Coron on 10/31/2020.
 //  Copyright © 2020 Just Write Code LLC. All rights reserved.
 //
+//  Further edits created by Troy Martin on 12/11/2024.
+//  Copyright © 2024 Beef Erikson Studios. All rights reserved.
+//
 
 import SpriteKit
 import GameplayKit
+import GameKit
 
 // MARK: - GAME TYPES
 
@@ -84,7 +88,9 @@ class GameScene: SKScene {
   private var gameModel = GameModel()
   var gameType: GameType = GameType.soloMatch
   
-  // TODO: Add Game Center-related properties
+  // Add multiplayer properties
+  var gameCenterMatchID: String?
+  var gameCenterData: GameCenterData?
   
   // MARK: - INIT METHODS
   
@@ -93,21 +99,40 @@ class GameScene: SKScene {
   }
   
   override func didMove(to view: SKView) {
-    // Set up the game based on its type
-    switch gameType {
-    case .soloMatch:
-      setupSoloGame()
-    case .localMatch:
-      setupLocalGame()
-    case .remoteMatch:
-      setupRemoteGame()
+      // Set up the game based on its type
+      switch gameType {
+      case .soloMatch:
+          setupSoloGame()
+      case .localMatch:
+          setupLocalGame()
+      case .remoteMatch:
+          setupRemoteGame()
+      }
       
-    // TODO: Add Game Center Observers
-    }
+      // Add Game Center Remote Notification Handlers
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(self.processGameCenterRequest),
+                                             name: .receivedTurnEvent,
+                                             object: nil)
+
+      
   }
+    
+    /// If match ID's match, loads the Game Center Game.
+    ///
+    /// - Parameters:
+    ///   - notification: The Notification to process.
+    @objc func processGameCenterRequest(_ notification: Notification) {
+        guard let match = notification.object as? GKTurnBasedMatch else { return }
+        
+        if gameCenterMatchID == match.matchID {
+            loadGameCenterGame(match: match)
+        } else {
+            print("This player is playing a different game.")
+        }
+    }
   
-  // TODO: Add Game Center Notification Handlers
-  
+    
   // MARK: - GAME SET UP METHODS
   
   func setupSoloGame() {
@@ -132,21 +157,82 @@ class GameScene: SKScene {
   
   // MARK: - Remote Game Helpers
   
-  func setupRemoteGame() {
-    let player1 = Player(isHuman: true)
-    player1.scorecard = yourScore
+    func setupRemoteGame() {
+        let player1 = Player(isHuman: true)
+        player1.scorecard = yourScore
     
-    let player2 = Player(isHuman: true)
-    player2.scorecard = theirScore
+        let player2 = Player(isHuman: true)
+        player2.scorecard = theirScore
     
-    gameModel.addPlayers(p1: player1, p2: player2)
+        gameModel.addPlayers(p1: player1, p2: player2)
     
-    // TODO: Add code to set up the game
+        // Local player check and initialization
+        if GameKitHelper.shared.canTakeTurn() == false {
+            print("It's the remote player's turn.")
+            
+            // Move the the next player (opponent)
+            gameModel.nextPlayer()
+            
+            // Visually disable pass and roll buttons
+            rollButton.texture = rollButtonTextureDisabled
+            passButton.texture = passButtonTextureDisabled
+        }
+        
+        // Update local player scoreboard and checks win status
+        if let localPlayer = gameCenterData?.getLocalPlayer() {
+            
+            // Update total points for the local player
+            gameModel.players[0].totalPoints = localPlayer.totalPoints
+            
+            // End game if player won
+            if localPlayer.isWinner == true {
+                gameModel.currentPlayerIndex = 0
+                endGame()
+            }
+        }
+        
+        // Update remote player scoreboard and checks win status
+        if let remotePlayer = gameCenterData?.getRemotePlayer() {
+            
+            // Update total points for remote player
+            gameModel.players[1].totalPoints = remotePlayer.totalPoints
+            
+            // End game if remote player won
+            if remotePlayer.isWinner == true {
+                gameModel.currentPlayerIndex = 1
+                endGame()
+            }
+        }
   }
   
-  func processEndTurnForRemoteGame() {
-    // TODO: Add code to end the turn
-  }
+    /// Ends turn on multiplayer games.
+    func processEndTurnForRemoteGame() {
+        
+        // Update local player's points
+        if let localPlayer = gameCenterData?.getLocalPlayer() {
+            if let index = gameCenterData?.getPlayerIndex(for: localPlayer) {
+                gameCenterData?.players[index].totalPoints = gameModel.players[0].totalPoints
+            }
+        }
+        
+        // Update remote player's points
+        if let remotePlayer = gameCenterData?.getRemotePlayer() {
+            if let index = gameCenterData?.getPlayerIndex(for: remotePlayer) {
+                gameCenterData?.players[index].totalPoints = gameModel.players[1].totalPoints
+            }
+        }
+        
+        // End the turn and save the data
+        GameKitHelper.shared.endTurn(gameCenterData!)
+        
+        // If remote player's turn, disable pass and roll buttons
+        if GameKitHelper.shared.canTakeTurn() == false {
+            rollButton.texture = rollButtonTextureEnabled
+            passButton.texture = passButtonTextureEnabled
+        }
+    }
+    
+    
   
   // MARK: - PROCESS TAP METHODS
   
@@ -288,18 +374,25 @@ class GameScene: SKScene {
   
   func endGame() {
     
-    // Determine which player won
-    var isWinner: Bool
-    if self.gameModel.currentPlayerIndex == 0 {
-      isWinner = true
-    } else {
-      isWinner = false
-    }
+      // Determine which player won
+      var isWinner: Bool
     
-    // TODO: Add code to end Game Center game
+      if self.gameModel.currentPlayerIndex == 0 {
+          isWinner = true
+      } else {
+          isWinner = false
+      }
     
-    self.loadGameOverScene(isWinner: isWinner)
+      // Ends game with either win or lose state
+      if gameType == .remoteMatch && isWinner == true {
+          GameKitHelper.shared.winGame(gameCenterData!)
+      } else if gameType == .remoteMatch && isWinner == false {
+          GameKitHelper.shared.lostGame(gameCenterData!)
+      }
+    
+      self.loadGameOverScene(isWinner: isWinner)
   }
+    
   
   // MARK: - ARTIFICIAL INTELLIGENCE SUPPORT
   

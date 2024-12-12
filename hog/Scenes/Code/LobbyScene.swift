@@ -10,6 +10,7 @@
 //
 
 import SpriteKit
+import GameKit
 
 class LobbyScene: SKScene {
   
@@ -48,11 +49,30 @@ class LobbyScene: SKScene {
     
     // MARK: - INIT METHODS
   
+    /// Resets the match data and adds Game Center Observers.
+    ///
+    /// - Parameters:
+    ///   - view: The SKView to apply initializations to.
     override func didMove(to view: SKView) {
-        // TODO: Add code to reset the match data
-        // TODO: Add Game Center Observers
-  }
-  
+        // Reset the match data
+        GameKitHelper.shared.currentMatch = nil
+        
+        // Set up the Game Center Remote Game Notifications
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.processGameCenterRequest),
+                                               name: .receivedTurnEvent,
+                                               object: nil)
+    }
+    
+    /// Loads the Game Center game using the notification object.
+    ///
+    /// - Parameters:
+    ///   - notification: The Notification to use in the Game Center game.
+    @objc func processGameCenterRequest(_ notification: Notification) {
+        guard let match = notification.object as? GKTurnBasedMatch else { return }
+        
+        loadGameCenterGame(match: match)
+    }
     
     // MARK: - TOUCH HANDLERS
   
